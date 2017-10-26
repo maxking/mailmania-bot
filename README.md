@@ -22,6 +22,8 @@ If you are not familiar with Chalice, I recommend that you look through its
 [setup AWS credentials][5] on your local machine to be able to deploy to AWS Lambda
 using Chalice. 
 
+### Chalice Configuration
+
 Then, go ahead and clone this repo:
 
 ```bash
@@ -67,8 +69,7 @@ to the Lambda Function as environment variables:
   email address with error trace. Currently, this doesn't work properly.
 
 
-
-## Deploying
+### Deploying
 
 Deployment step for this bot:
 
@@ -97,12 +98,30 @@ Deployment step for this bot:
     endpoints for your project and push your packaged virtual environment to AWS
     Lambda.
 	
+	The above command will also give you endpoint where your bot will listen for
+    requests. You will need this in next step to setup the Gitlab's Webhook.
+	
 	**Note**: Sometimes, you may get `Module 'gitlab' not found` or similar
     errors for dependencies. Please de-activate and re-activate your virtualenv
     to fix this. I am not sure about the exact reason for this problem.
 
 I recommend reading [Chalice's Quickstart][7] and [documentation][4] for more
 detailed instructions.
+
+
+### Gitlab Setup
+
+Now, you need to add a webhook in your Gitlab project to send a POST to the URL
+you received in the previous step after running `chalice deploy` command.
+
+You will also need a long random token which you added in the configuration
+above to make sure only requests from Gitlab project are processed by the
+Bot. Add this token under "Secret Token" in add web hook form.
+
+Check only "Merge Request events" in the list of events. 
+
+Finally, save your webhook.
+
 
 ## Process of creating Merge Request
 
