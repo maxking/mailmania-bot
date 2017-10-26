@@ -157,4 +157,4 @@ def index():
                 print(e)
                 traceback.print_exc()
     else:
-        return "Not creating merge request because: " + reason
+        print("Not creating merge request because: " + reason)
