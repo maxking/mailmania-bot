@@ -117,10 +117,6 @@ def is_backport_required(project, request_body):
         raise BadRequestError(
             'This bot only listens for Merge Request hooks',
             ' you provided {}'.format(request_body['object_kind']))
-    if request_body['project']['name'].lower() != project.lower():
-        raise BadRequestError(
-            'Bad project name, url is for {0} and data is {1}'.format(
-                project, request_body['project']['name']))
 
     target_branch = request_body['object_attributes']['target_branch']
     labels = request_body['labels']
@@ -137,7 +133,7 @@ def is_backport_required(project, request_body):
 def index():
     request_body = app.current_request.json_body
     project_with_ns = request_body['project']['path_with_namespace']
-    project = request_body['project']['name']
+    project = project_with_ns.split('/')[1]
     token = os.getenv('{}_GL_TOKEN'.format(project.upper()))
     if token is None:
         return "Bad configuration, Gitlab Token not set."
