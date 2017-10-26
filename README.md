@@ -33,16 +33,16 @@ Create a new configuration file at `mailmania-bot/.chalice/config.json`:
 ```json
 {
   "version": "2.0",
-		"app_name": "mailmania",
-		"environment_variables": {"<project_name>_GL_TOKEN": "<secret-token>",
-	                              "GITLAB_TOKEN": "<gitlab-access-token>",
-								  "BACKPORT_DESTINATION": "<backport-branch>",
-								  "ADMIN_EMAIL": "maxking@asynchronous.in"},
-		"stages": {
-				"dev": {
-						"api_gateway_stage": "api"
-				}
-		}
+        "app_name": "mailmania",
+        "environment_variables": {"<project_name>_GL_TOKEN": "<secret-token>",
+                                  "GITLAB_TOKEN": "<gitlab-access-token>",
+                                  "BACKPORT_DESTINATION": "<backport-branch>",
+                                  "ADMIN_EMAIL": "maxking@asynchronous.in"},
+        "stages": {
+                "dev": {
+                        "api_gateway_stage": "api"
+                }
+        }
 }
 ```
 
