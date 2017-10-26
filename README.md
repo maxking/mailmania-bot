@@ -67,6 +67,43 @@ to the Lambda Function as environment variables:
   email address with error trace. Currently, this doesn't work properly.
 
 
+
+## Deploying
+
+Deployment step for this bot:
+
+1. Create a virtual environment using Python 3.6:
+
+   ```bash
+   $ virtualenv -p python3.6 aws-chalice
+   $ aws-chalice/bin/activate
+   ```
+
+2. Install chalice and dependencies in your virtual environment:
+
+	```bash
+	$ pip install chalice
+	$ pip install -r requirements.txt
+	```
+
+3. Deploy to AWS lambda:
+
+	```bash
+	$ chalice deploy
+	```
+	
+	The above command should create appropriate policies for AWS IAM (for Lambda
+    Function), AWS SES (to send emails), AWS API Gateway, setup API gateway
+    endpoints for your project and push your packaged virtual environment to AWS
+    Lambda.
+	
+	**Note**: Sometimes, you may get `Module 'gitlab' not found` or similar
+    errors for dependencies. Please de-activate and re-activate your virtualenv
+    to fix this. I am not sure about the exact reason for this problem.
+
+I recommend reading [Chalice's Quickstart][7] and [documentation][4] for more
+detailed instructions.
+
 ## Process of creating Merge Request
 
 This is the steps bot does to create a backported merge request:
@@ -95,3 +132,4 @@ for full license text.
 [4]: https://chalice.readthedocs.io/en/latest/index.html
 [5]: https://github.com/aws/chalice#credentials
 [6]: https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
+[7]: https://github.com/aws/chalice#quickstart
