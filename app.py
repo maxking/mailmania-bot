@@ -136,7 +136,6 @@ def is_backport_required(project, request_body):
 @app.route('/', methods=['POST'])
 def index():
     request_body = app.current_request.json_body
-    print(request_body)
     project_with_ns = request_body['project']['path_with_namespace']
     project = request_body['project']['name']
     token = os.getenv('{}_GL_TOKEN'.format(project.upper()))
