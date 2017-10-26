@@ -5,7 +5,7 @@ This bot is meant to help with backporting merge requests to branches other than
 [AWS Lambda][1] and receives notifications using [Gitlab's Webhooks][2].
 
 
-**Note** : This is a relative Alpha level software and is under active development. 
+**Note** : This is a alpha quality software and is under active development. 
 **Please use it at your own risk.**
 
 
