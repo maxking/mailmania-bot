@@ -18,6 +18,8 @@ BACKPORT_DESTINATION = os.getenv('BACKPORT_BRANCH', 'release-3.1')
 gl = gitlab.Gitlab('https://gitlab.com',
                    os.getenv('GITLAB_TOKEN'), api_version=4)
 
+ses = boto3.client('ses')
+
 
 class BackportFailedError(Exception):
     pass
@@ -39,17 +41,16 @@ def prepare_email(subject: Text, body: Text) -> Dict['str', object]:
     return email
 
 
-def send_email_ses(recipient: Text, subject: Text, body: Text) -> None:
+def send_email_ses(ses_client, recipient: Text, subject: Text, body: Text) -> Dict[Text, Text]:
     """
     Send email to the recipient using Amazon SES service.
     """
-    ses = boto3.client('ses', region='us-west-2')
     sender = os.getenv('DEFAULT_FROM_EMAIL',
                        'Mailmania Bot <mailmania@lists.araj.me>')
     message = prepare_email(subject, body)
-    ses.send_email(Source=sender,
-                   Destination={'ToAddress': [recipient, ]},
-                   Message=message)
+    return ses_client.send_email(Source=sender,
+                                 Destination={'ToAddresses': [recipient, ]},
+                                 Message=message)
 
 
 def notify_admin(error_trace: Text) -> None:
@@ -59,7 +60,8 @@ def notify_admin(error_trace: Text) -> None:
         print(error_trace)
         return
     subject = "There has been a error backporting a merge request"
-    send_email_ses(recipient=recipient, subject=subject, body=error_trace)
+    send_email_ses(ses_client=ses, recipient=recipient, subject=subject,
+                   body=error_trace)
 
 
 def create_new_branch(project: Project, mr_id: Text) -> ProjectBranch:

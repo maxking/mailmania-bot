@@ -1,3 +1,4 @@
 chalice
 pytest
 mypy
+botocore
