@@ -22,7 +22,8 @@ def test_prepare_email():
 class AWSTests(TestCase):
 
     def setUp(self):
-        self.ses_client = botocore.session.get_session().create_client('ses')
+        self.ses_client = botocore.session.get_session().create_client(
+            'ses', region_name='us-west-2')
         self.stubber = Stubber(self.ses_client)
         self.ses_response = {'MessageId': 'Thisthevalueofmessage@example.com'}
         expected_params = {'Source': ANY,
