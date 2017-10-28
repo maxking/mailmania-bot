@@ -4,8 +4,10 @@ import gitlab
 import logging
 import traceback
 
+from typing import Any, Dict, Iterable, Text, Tuple
 from chalice import Chalice, ForbiddenError, BadRequestError
-from typing import Any, Dict, Text
+from gitlab.v4.objects import (
+    Project, ProjectBranch, ProjectMergeRequest, ProjectLabel)
 
 
 app = Chalice(app_name='mailmania')
@@ -37,7 +39,7 @@ def prepare_email(subject: Text, body: Text) -> Dict['str', object]:
     return email
 
 
-def send_email_ses(recipient, subject, body):
+def send_email_ses(recipient: Text, subject: Text, body: Text) -> None:
     """
     Send email to the recipient using Amazon SES service.
     """
@@ -48,11 +50,9 @@ def send_email_ses(recipient, subject, body):
     ses.send_email(Source=sender,
                    Destination={'ToAddress': [recipient, ]},
                    Message=message)
-    print(message)
-    pass
 
 
-def notify_admin(error_trace):
+def notify_admin(error_trace: Text) -> None:
     recipient = os.getenv('ADMIN_EMAIL')
     if recipient is None:
         print("ERROR!!!!!!!! ADMIN_EMAIL is not configured")
@@ -60,10 +60,9 @@ def notify_admin(error_trace):
         return
     subject = "There has been a error backporting a merge request"
     send_email_ses(recipient=recipient, subject=subject, body=error_trace)
-    pass
 
 
-def create_new_branch(project, mr_id):
+def create_new_branch(project: Project, mr_id: Text) -> ProjectBranch:
     """
     Create a new branch in the project mentioned above.
     """
@@ -87,7 +86,7 @@ def create_new_branch(project, mr_id):
     return new_branch
 
 
-def do_backport(project, mr_id):
+def do_backport(project: Project, mr_id: Text) -> ProjectMergeRequest:
     project = gl.projects.get(project)
     backport_br = project.branches.get(BACKPORT_DESTINATION)
     if backport_br is None:
@@ -108,14 +107,14 @@ def do_backport(project, mr_id):
                                          'description': mr.description})
 
 
-def has_label(labels, label_name='backport-candidate'):
+def has_label(labels: Iterable[ProjectLabel], label_name: Text = 'backport-candidate') -> bool:
     """
     Check if the label mentioned is in the list.
     """
     return label_name in [x['title'] for x in labels]
 
 
-def is_backport_required(project, request_body):
+def is_backport_required(project: Project, request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
     if request_body['object_kind'] != 'merge_request':
         raise BadRequestError(
             'This bot only listens for Merge Request hooks',
@@ -133,7 +132,7 @@ def is_backport_required(project, request_body):
 
 
 @app.route('/', methods=['POST'])
-def index():
+def index() -> Text:
     request_body = app.current_request.json_body
     project_with_ns = request_body['project']['path_with_namespace']
     project = project_with_ns.split('/')[1]
@@ -156,3 +155,5 @@ def index():
                 traceback.print_exc()
     else:
         print("Not creating merge request because: " + reason)
+
+    return "Request recieved for backport! Processing ..."
