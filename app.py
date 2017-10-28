@@ -18,7 +18,7 @@ BACKPORT_DESTINATION = os.getenv('BACKPORT_BRANCH', 'release-3.1')
 gl = gitlab.Gitlab('https://gitlab.com',
                    os.getenv('GITLAB_TOKEN'), api_version=4)
 
-ses = boto3.client('ses')
+ses = boto3.client('ses', region_name='us-west-2')
 
 
 class BackportFailedError(Exception):
