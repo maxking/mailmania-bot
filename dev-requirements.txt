@@ -1,2 +1,3 @@
 chalice
 pytest
+mypy

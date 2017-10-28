@@ -1,3 +1,4 @@
+import pytest                                                 # type: ignore
 from app import prepare_email
 
 
@@ -12,3 +13,5 @@ def test_prepare_email():
 
     assert email['Subject']['Data'] == subject
     assert email['Body']['Text']['Data'] == body
+
+

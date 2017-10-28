@@ -3,7 +3,10 @@ import boto3
 import gitlab
 import logging
 import traceback
+
 from chalice import Chalice, ForbiddenError, BadRequestError
+from typing import Any, Dict, Text
+
 
 app = Chalice(app_name='mailmania')
 app.log.setLevel(logging.DEBUG)
@@ -18,7 +21,7 @@ class BackportFailedError(Exception):
     pass
 
 
-def prepare_email(subject, body):
+def prepare_email(subject: Text, body: Text) -> Dict['str', object]:
     email = {
         'Subject': {
             'Data': subject,
