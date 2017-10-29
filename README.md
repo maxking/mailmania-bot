@@ -68,6 +68,8 @@ to the Lambda Function as environment variables:
 - `ADMIN_EMAIL`: In case anything goes wrong, an email will be sent to this
   email address with error trace. Currently, this doesn't work properly.
 
+- `DEFAULT_FROM_EMAIL`: The From address to send emails from.
+
 
 ### Deploying
 
