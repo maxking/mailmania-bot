@@ -4,3 +4,4 @@ mypy
 botocore
 pytest-cov
 pytest-env
+codecov
