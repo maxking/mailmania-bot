@@ -172,7 +172,6 @@ class AWSTests(TestCase):
         assert not mock_client.send_email.called
 
 
-
 class GitlabTests(TestCase):
 
     def setUp(self):
@@ -180,7 +179,6 @@ class GitlabTests(TestCase):
 
     def tearDown(self):
         pass
-
 
     def test_create_new_branch(self):
         # Test that new branch creation succeeds.
