@@ -62,7 +62,7 @@ class AWSTests(TestCase):
         subject = 'Please send this to someone.'
         body = 'This is the sample email body.\n'
 
-        response = send_email_ses(mock_client, recipient, subject, body)
+        send_email_ses(mock_client, recipient, subject, body)
 
         mock_client.send_email.assert_called()
         mock_client.send_email.assert_called_with(
