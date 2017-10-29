@@ -98,7 +98,7 @@ def create_new_branch(project: Project, mr_id: Text) -> ProjectBranch:
     Create a new branch in the project mentioned above.
     """
     # Breaking the recursive calls.
-    if len(mr_id) > 5:
+    if len(mr_id) > 10:
         raise BadRequestError(
             "Merge request {} doesn't look right.".format(mr_id))
     new_backport_branch = 'backport-mr-{}'.format(mr_id)
