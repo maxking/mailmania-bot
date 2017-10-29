@@ -1,6 +1,6 @@
 # Mailmania Bot
 
-[![Build Status](https://travis-ci.org/maxking/mailmania-bot.svg?branch=master)](https://travis-ci.org/maxking/mailmania-bot)
+[![Build Status](https://travis-ci.org/maxking/mailmania-bot.svg?branch=master)](https://travis-ci.org/maxking/mailmania-bot)  [![codecov](https://codecov.io/gh/maxking/mailmania-bot/branch/master/graph/badge.svg)](https://codecov.io/gh/maxking/mailmania-bot) [![Maintainability](https://api.codeclimate.com/v1/badges/e3f01787574ccbca5bba/maintainability)](https://codeclimate.com/github/maxking/mailmania-bot/maintainability)
 
 This bot is meant to help with backporting merge requests to branches other than
 'master'. It is built using server application framework [Chalice][3] hosted on
