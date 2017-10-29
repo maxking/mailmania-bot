@@ -4,6 +4,7 @@ import gitlab
 import logging
 import traceback
 
+from botocore.client import BaseClient
 from typing import Any, Dict, Iterable, Text, Tuple
 from chalice import Chalice, ForbiddenError, BadRequestError
 from gitlab.v4.objects import (
@@ -45,7 +46,7 @@ def prepare_destination(recipients: Iterable[Text]) -> Dict[Text, Iterable[Text]
     return {'ToAddresses': recipients}
 
 
-def send_email_ses(ses_client, recipient: Text, subject: Text, body: Text) -> Dict[Text, Text]:
+def send_email_ses(ses_client: BaseClient, recipient: Text, subject: Text, body: Text) -> Dict[Text, Text]:
     """
     Send email to the recipient using Amazon SES service.
     """
@@ -70,7 +71,8 @@ def get_ses_client():
     return ses
 
 
-def send_email(*args, **kwargs) -> bool:
+def send_email(*args, **kwargs):
+    # Dynamic code due to *args, **kwargs, mypy can't really check types here.
     try:
         client = get_ses_client()
         send_email_ses(ses_client=client, *args, **kwargs)
