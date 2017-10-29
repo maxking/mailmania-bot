@@ -91,3 +91,122 @@ class AWSTests(TestCase):
         error_trace = 'Error Traceback for emails.'
         notify_admin(error_trace)
         mock_client.send_email.assert_called()
+
+    @pytest.mark.xfail
+    @mock.patch.dict(os.environ, {"ADMIN_EMAIL": 'hey@example.com',
+                                  "ALERT_ADMIN": "No"})
+    @mock.patch('app.ses')
+    def test_notify_admin_silenced(self, mock_client):
+        # If alert admin is set to "No", do not send out emails on errors and
+        # failures.
+        error_trace = 'Error traceback for emails'
+        notify_admin(error_trace)
+        assert not mock_client.send_email.called
+
+
+
+class GitlabTests(TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+
+    def test_create_new_branch(self):
+        # Test that new branch creation succeeds.
+        pass
+
+    def test_create_new_branch_when_exists(self):
+        # Test graceful logging and exist if the backport branch exists.
+        pass
+
+    def test_create_new_branch_gitlab_error(self):
+        # Test any other gitlab error when creating new branch.
+        pass
+
+    def test_do_backport(self):
+        # Test that backport succeeds to a new branch.
+        pass
+
+    def test_do_backport_with_errors(self):
+        # Test logging and graceful exit if the cherry_pick fails for one or
+        # more commits.
+        pass
+
+    def test_backport_if_new_branch_creation_fails(self):
+        # Test graceful exit if new branch creation fails.
+        pass
+
+    def test_has_label(self):
+        # Test a simple list of labels.
+        pass
+
+    def test_has_label_with_no_matches(self):
+        # Test if there are no matches.
+        pass
+
+    def test_label_with_multiple_matches(self):
+        # Test if there are multiple matches.
+        pass
+
+    def test_is_backport_required_simple(self):
+        # Test if the backport is required for this current request.
+        pass
+
+    def test_is_backport_required_non_master_destination(self):
+        # Test if backport is required when the target branch for the merge
+        # request is not 'master'.
+        pass
+
+    def test_is_backport_required_with_no_labels(self):
+        # Test if backport is required when the target branch doesn't have the
+        # required labels.
+        pass
+
+    def test_is_backport_required_non_merged_request(self):
+        # Test if a backport is required when the merge request isn't merged.
+        pass
+
+    def test_is_backport_required_returns_correct_reasons(self):
+        # If the backport is not going to succeed, test that the correct reasons
+        # are returned.
+        pass
+
+    def test_index(self):
+        # Test index processes request nicely.
+        pass
+
+    def test_index_correct_response_for_request(self):
+        # Test the correct response is returned for the request.
+        pass
+
+    def test_index_backport_not_required(self):
+        # Test index response if backport is not reuired.
+        pass
+
+    def test_index_backport_required(self):
+        # Test index response if the backport is required.
+        pass
+
+    def test_index_logs_error_tracebacks(self):
+        # Test that errors are logged when they happen for debugging purpose.
+        pass
+
+    def test_index_notifies_admin_when_backport_fails(self):
+        # Test that admin is notified when the backport fails with a known
+        # error.
+        pass
+
+    def test_index_with_no_gitlab_token(self):
+        # Test error is logged and returned when the gitlab's token is not set.
+        pass
+
+    def test_index_when_gitlab_token_match_fails(self):
+        # Test if the gitlab's token doesn't match as per the configured token.
+        pass
+
+    def test_index_with_get_requests(self):
+        # Test a GET request to index.
+        pass
