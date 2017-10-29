@@ -46,7 +46,8 @@ def prepare_destination(recipients: Iterable[Text]) -> Dict[Text, Iterable[Text]
     return {'ToAddresses': recipients}
 
 
-def send_email_ses(ses_client: BaseClient, recipient: Text, subject: Text, body: Text) -> Dict[Text, Text]:
+def send_email_ses(
+        ses_client: BaseClient, recipient: Text, subject: Text, body: Text) -> Dict[Text, Text]:
     """
     Send email to the recipient using Amazon SES service.
     """
