@@ -1,5 +1,7 @@
 # Mailmania Bot
 
+[![Build Status](https://travis-ci.org/maxking/mailmania-bot.svg?branch=master)](https://travis-ci.org/maxking/mailmania-bot)
+
 This bot is meant to help with backporting merge requests to branches other than
 'master'. It is built using server application framework [Chalice][3] hosted on
 [AWS Lambda][1] and receives notifications using [Gitlab's Webhooks][2].
