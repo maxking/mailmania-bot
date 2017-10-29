@@ -10,3 +10,6 @@ install:
 script:
   - pytest --cov=app test_app.py --cov-report term-missing
   - mypy --ignore-missing-imports app.py
+
+after_success:
+  - codecov -t=$CODECOV_TOKEN
