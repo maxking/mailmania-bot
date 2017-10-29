@@ -8,5 +8,5 @@ install:
   - pip install -r dev-requirements.txt
 
 script:
-  - pytest
+  - pytest --cov=app test_app.py --cov-report term-missing
   - mypy --ignore-missing-imports app.py

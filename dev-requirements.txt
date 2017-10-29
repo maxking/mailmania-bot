@@ -2,4 +2,5 @@ chalice
 pytest
 mypy
 botocore
+pytest-cov
 pytest-env
