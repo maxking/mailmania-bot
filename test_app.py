@@ -1,10 +1,27 @@
 import os
+import sys
+import app
 import pytest                                                 # type: ignore
 import botocore.session
 
+from io import StringIO
 from unittest import TestCase, mock
+from contextlib import contextmanager
 from botocore.stub import ANY, Stubber
-from app import prepare_email, send_email_ses, notify_admin, prepare_destination
+from botocore.client import BaseClient
+from app import (prepare_email, send_email_ses, notify_admin,
+    prepare_destination, get_ses_client, send_email, prepare_destination)
+
+
+@contextmanager
+def captured_output():
+    new_out, new_err = StringIO(), StringIO()
+    old_out, old_err = sys.stdout, sys.stderr
+    try:
+        sys.stdout, sys.stderr = new_out, new_err
+        yield sys.stdout, sys.stderr
+    finally:
+        sys.stdout, sys.stderr = old_out, old_err
 
 
 def test_prepare_email():
@@ -18,6 +35,13 @@ def test_prepare_email():
 
     assert email['Subject']['Data'] == subject
     assert email['Body']['Text']['Data'] == body
+
+
+def test_prepare_destination():
+    # Test prepare_destination works as expected.
+    destination = 'myself@example.com'
+    dest = prepare_destination([destination, ])
+    assert dest == {'ToAddresses': [destination, ]}
 
 
 class AWSTests(TestCase):
@@ -36,6 +60,48 @@ class AWSTests(TestCase):
 
     def tearDown(self):
         self.stubber.deactivate()
+
+    def test_get_ses_client(self):
+        # Test get_ses_client returns the global client object.
+        original_client = app.ses
+        assert original_client is None
+        # Not when get_ses_client is invoked, the global ses client is
+        # initialized and is same as the one returned by the method.
+        new_client = get_ses_client()
+        # The client should be an instance of BaseClient object.
+        assert isinstance(new_client, BaseClient)
+        # The global app.ses client should be now set to the value returned by
+        # get_ses_client.
+        assert app.ses is not None
+        # The global value should be same as the one returned by get_ses_client.
+        assert new_client is app.ses
+        # If the global is already initialized, do not create another one.
+        another_client = get_ses_client()
+        assert another_client is new_client
+
+    @mock.patch('app.ses')
+    @mock.patch('app.send_email_ses')
+    def test_send_email(self, mock_method, mock_client):
+        # Test send_email invokes send_email_ses.
+        args = ['value1', 'value2']
+        kwargs = dict(key='value')
+
+        val = send_email(*args, **kwargs)
+        assert not mock_client.send_email.called
+        assert mock_method.called
+        mock_method.assert_called_with(*args, **kwargs, ses_client=mock_client)
+        assert val is True
+
+        # Test that send_email prints out error when an exception is raised.
+        mock_method.reset_mock()
+        # Raise an exception when this method is called.
+        mock_method.side_effect = Exception('I am a super exception!')
+
+        with captured_output() as (out, err):
+            val = send_email(*args, **kwargs)
+            assert val is False
+            assert 'I am a super exception!' == out.getvalue().strip()
+            assert not mock_client.send_email.called
 
     def test_send_email_ses(self):
         """
@@ -73,6 +139,8 @@ class AWSTests(TestCase):
     @mock.patch('app.ses')
     @mock.patch.dict(os.environ, {'DEFAULT_FROM_EMAIL': 'new@example.com'})
     def test_send_email_ses_new_sender(self, mock_client):
+        # Test send_email_ses changes sender when environment variable
+        # 'DEFAULT_FROM_EMAIL' is changed.
         recipient = 'notanemail'
         subject = 'Please send this to someone.'
         body = 'This is the sample email body.\n'
