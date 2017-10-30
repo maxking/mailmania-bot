@@ -157,7 +157,7 @@ def is_backport_required(request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
     return _decide_backport(target_branch, [x['title'] for x in labels], state)
 
 
-def _decide_backport(target_branch: Text, labels: Iterable[Text], state: Text) -> bool:
+def _decide_backport(target_branch: Text, labels: Iterable[Text], state: Text) -> Tuple[bool, Text]:
     if target_branch.lower() != 'master':
         return False, 'Target branch is: {}'.format(target_branch)
 
