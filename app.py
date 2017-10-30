@@ -138,11 +138,11 @@ def do_backport(project: Project, mr_id: Text) -> ProjectMergeRequest:
                                          'description': mr.description})
 
 
-def has_label(labels: Iterable[ProjectLabel], label_name: Text = 'backport-candidate') -> bool:
+def has_label(labels: Iterable[Text], label_name: Text = 'backport candidate') -> bool:
     """
     Check if the label mentioned is in the list.
     """
-    return label_name in [x['title'] for x in labels]
+    return label_name in labels
 
 
 def is_backport_required(request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
@@ -154,11 +154,14 @@ def is_backport_required(request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
     target_branch = request_body['object_attributes']['target_branch']
     labels = request_body['labels']
     state = request_body['object_attributes']['state']
+    return _decide_backport(target_branch, [x['title'] for x in labels], state)
 
+
+def _decide_backport(target_branch: Text, labels: Iterable[Text], state: Text) -> bool:
     if (target_branch.lower() == 'master' and has_label(labels) and state.lower() == 'merged'):  # noqa
             return True, None
     reason = "target_branch = {0}, labels = {1}, state = {2}".format(   # noqa
-        target_branch, [x['title'] for x in labels], state)
+        target_branch, labels, state)
     return False, reason
 
 
