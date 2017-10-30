@@ -145,7 +145,7 @@ def has_label(labels: Iterable[ProjectLabel], label_name: Text = 'backport-candi
     return label_name in [x['title'] for x in labels]
 
 
-def is_backport_required(project: Project, request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
+def is_backport_required(request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
     if request_body['object_kind'] != 'merge_request':
         raise BadRequestError(
             'This bot only listens for Merge Request hooks',
@@ -173,7 +173,7 @@ def index() -> Text:
     if app.current_request.headers.get('X-Gitlab-Token') != token:
         raise ForbiddenError('X-GL-TOKEN Token does not match')
 
-    backport_req, reason = is_backport_required(project, request_body)
+    backport_req, reason = is_backport_required(request_body)
     if backport_req:
             print("This is a backport candidate, performing requested action.")
             try:
