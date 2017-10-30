@@ -158,11 +158,16 @@ def is_backport_required(request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
 
 
 def _decide_backport(target_branch: Text, labels: Iterable[Text], state: Text) -> bool:
-    if (target_branch.lower() == 'master' and has_label(labels) and state.lower() == 'merged'):  # noqa
-            return True, None
-    reason = "target_branch = {0}, labels = {1}, state = {2}".format(   # noqa
-        target_branch, labels, state)
-    return False, reason
+    if target_branch.lower() != 'master':
+        return False, 'Target branch is: {}'.format(target_branch)
+
+    if not has_label(labels):
+        return False, 'Backport Candidate label not found: {}'.format(labels)
+
+    if state.lower() != 'merged':
+        return False, 'State {} is not merged.'.format(state)
+
+    return True, None
 
 
 @app.route('/', methods=['POST'])
