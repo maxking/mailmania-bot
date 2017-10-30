@@ -1,6 +1,7 @@
 import os
 import sys
 import app
+import json
 import pytest                                                 # type: ignore
 import botocore.session
 
@@ -10,7 +11,8 @@ from contextlib import contextmanager
 from botocore.stub import ANY, Stubber
 from botocore.client import BaseClient
 from app import (prepare_email, send_email_ses, notify_admin,
-    prepare_destination, get_ses_client, send_email, prepare_destination)
+    prepare_destination, get_ses_client, send_email, prepare_destination,
+                 is_backport_required, _decide_backport)
 
 
 @contextmanager
@@ -175,7 +177,11 @@ class AWSTests(TestCase):
 class GitlabTests(TestCase):
 
     def setUp(self):
-        pass
+        with open('testdata/request.txt') as fd:
+            self.sample_req = json.loads(fd.read())
+
+        with open('testdata/backport-candidate.txt') as fd:
+            self.backport_tag = json.loads(fd.read())
 
     def tearDown(self):
         pass
@@ -217,28 +223,58 @@ class GitlabTests(TestCase):
         # Test if there are multiple matches.
         pass
 
-    def test_is_backport_required_simple(self):
+    @mock.patch('app._decide_backport')
+    def test_is_backport_required_simple(self, mock_method):
         # Test if the backport is required for this current request.
-        pass
+        req = self.sample_req.copy()
+        req['object_kind'] = 'merge_request'
+        req['object_attributes']['target_branch'] = 'master'
+        req['labels'] = [self.backport_tag]
+        req['object_attributes']['state'] = 'merged'
 
-    def test_is_backport_required_non_master_destination(self):
+        is_backport_required(req)
+
+        mock_method.assert_called()
+        mock_method.assert_called_with('master', ['backport candidate'], 'merged')
+
+        req['labels'] = []
+
+        mock_method.reset_mock()
+
+        is_backport_required(req)
+
+        mock_method.assert_called()
+        mock_method.assert_called_with('master', [], 'merged')
+
+    def test_decide_backport(self):
+        # Test if _decide_backport works returns true for a valid request.
+        decision, reason = _decide_backport(
+            'master', ['backport candidate'], 'merged')
+        assert decision is True
+        assert reason is None
+
+    def test_decide_backport_non_master_destination(self):
         # Test if backport is required when the target branch for the merge
         # request is not 'master'.
-        pass
+        decision, reason = _decide_backport(
+            'release-3.1', ['backport candidate'], 'merged')
+        assert decision is False
+        assert 'release-3.1' in reason
 
-    def test_is_backport_required_with_no_labels(self):
+    def test_decide_backport_with_no_labels(self):
         # Test if backport is required when the target branch doesn't have the
         # required labels.
-        pass
+        decision, reason = _decide_backport(
+            'master', [], 'merged')
+        assert decision is False
+        assert 'backport candidate' not in reason
 
-    def test_is_backport_required_non_merged_request(self):
+    def test_decide_backport_non_merged_request(self):
         # Test if a backport is required when the merge request isn't merged.
-        pass
-
-    def test_is_backport_required_returns_correct_reasons(self):
-        # If the backport is not going to succeed, test that the correct reasons
-        # are returned.
-        pass
+        decision, reason = _decide_backport(
+            'master', ['backport candidate'], 'opened')
+        assert decision is False
+        assert 'opened' in reason
 
     def test_index(self):
         # Test index processes request nicely.

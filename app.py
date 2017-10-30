@@ -138,14 +138,14 @@ def do_backport(project: Project, mr_id: Text) -> ProjectMergeRequest:
                                          'description': mr.description})
 
 
-def has_label(labels: Iterable[ProjectLabel], label_name: Text = 'backport-candidate') -> bool:
+def has_label(labels: Iterable[Text], label_name: Text = 'backport candidate') -> bool:
     """
     Check if the label mentioned is in the list.
     """
-    return label_name in [x['title'] for x in labels]
+    return label_name in labels
 
 
-def is_backport_required(project: Project, request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
+def is_backport_required(request_body: Dict[Any, Any]) -> Tuple[bool, Text]:
     if request_body['object_kind'] != 'merge_request':
         raise BadRequestError(
             'This bot only listens for Merge Request hooks',
@@ -154,12 +154,20 @@ def is_backport_required(project: Project, request_body: Dict[Any, Any]) -> Tupl
     target_branch = request_body['object_attributes']['target_branch']
     labels = request_body['labels']
     state = request_body['object_attributes']['state']
+    return _decide_backport(target_branch, [x['title'] for x in labels], state)
 
-    if (target_branch.lower() == 'master' and has_label(labels) and state.lower() == 'merged'):  # noqa
-            return True, None
-    reason = "target_branch = {0}, labels = {1}, state = {2}".format(   # noqa
-        target_branch, [x['title'] for x in labels], state)
-    return False, reason
+
+def _decide_backport(target_branch: Text, labels: Iterable[Text], state: Text) -> Tuple[bool, Text]:
+    if target_branch.lower() != 'master':
+        return False, 'Target branch is: {}'.format(target_branch)
+
+    if not has_label(labels):
+        return False, 'Backport Candidate label not found: {}'.format(labels)
+
+    if state.lower() != 'merged':
+        return False, 'State {} is not merged.'.format(state)
+
+    return True, None
 
 
 @app.route('/', methods=['POST'])
@@ -173,7 +181,7 @@ def index() -> Text:
     if app.current_request.headers.get('X-Gitlab-Token') != token:
         raise ForbiddenError('X-GL-TOKEN Token does not match')
 
-    backport_req, reason = is_backport_required(project, request_body)
+    backport_req, reason = is_backport_required(request_body)
     if backport_req:
             print("This is a backport candidate, performing requested action.")
             try:
